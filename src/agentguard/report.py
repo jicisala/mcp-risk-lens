@@ -6,8 +6,90 @@ import json
 from .models import ScanResult
 
 
+SARIF_LEVELS = {
+    "critical": "error",
+    "high": "error",
+    "medium": "warning",
+    "low": "note",
+    "info": "note",
+}
+
+
 def render_json(result: ScanResult) -> str:
     return json.dumps(result.to_dict(), indent=2, ensure_ascii=False) + "\n"
+
+
+def render_sarif(result: ScanResult) -> str:
+    """Render findings as SARIF 2.1.0 for GitHub code scanning and CI systems."""
+    findings = result.sorted_findings()
+    rules = {}
+    for finding in findings:
+        rules.setdefault(
+            finding.rule_id,
+            {
+                "id": finding.rule_id,
+                "name": finding.title,
+                "shortDescription": {"text": finding.title},
+                "help": {"text": finding.remediation},
+                "properties": {
+                    "security-severity": str(
+                        {
+                            "critical": 9.5,
+                            "high": 8.0,
+                            "medium": 5.5,
+                            "low": 3.0,
+                            "info": 0.0,
+                        }[finding.severity]
+                    ),
+                    "tags": ["security", "mcp", "ai-agent"],
+                },
+            },
+        )
+
+    results = []
+    for finding in findings:
+        message = f"{finding.message} JSON path: {finding.path}. Fix: {finding.remediation}"
+        results.append(
+            {
+                "ruleId": finding.rule_id,
+                "level": SARIF_LEVELS[finding.severity],
+                "message": {"text": message},
+                "locations": [
+                    {
+                        "physicalLocation": {
+                            "artifactLocation": {"uri": result.target},
+                        },
+                        "logicalLocations": [
+                            {"name": finding.path, "kind": "configuration"}
+                        ],
+                    }
+                ],
+                "properties": {
+                    "severity": finding.severity,
+                    "confidence": finding.confidence,
+                    "jsonPath": finding.path,
+                },
+            }
+        )
+
+    payload = {
+        "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+        "version": "2.1.0",
+        "runs": [
+            {
+                "tool": {
+                    "driver": {
+                        "name": "MCP Risk Lens",
+                        "informationUri": "https://github.com/jicisala/mcp-risk-lens",
+                        "semanticVersion": "0.1.0",
+                        "rules": [rules[rule_id] for rule_id in sorted(rules)],
+                    }
+                },
+                "results": results,
+            }
+        ],
+    }
+    return json.dumps(payload, indent=2, ensure_ascii=False) + "\n"
 
 
 def render_text(result: ScanResult) -> str:
@@ -96,4 +178,3 @@ def render_html(result: ScanResult) -> str:
   {body}
   <footer>This report is heuristic static analysis, not a penetration test or compliance certification. The scanner never starts configured servers and makes no network calls.</footer>
 </main></body></html>\n"""
-

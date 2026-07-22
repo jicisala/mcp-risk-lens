@@ -52,6 +52,18 @@ CI-friendly JSON and severity gates:
 mcp-risk-lens scan .vscode/mcp.json --format json --output report.json --fail-on high
 ```
 
+Generate SARIF 2.1.0 for GitHub code scanning or another compatible CI system:
+
+```bash
+mcp-risk-lens scan .vscode/mcp.json \
+  --format sarif \
+  --output mcp-risk-lens.sarif \
+  --fail-on never
+```
+
+See the [GitHub Actions integration guide](docs/github-actions.md) for a complete workflow that
+uploads results to the repository Security tab.
+
 Exit codes:
 
 - `0`: scan completed and the severity threshold was not reached
@@ -85,7 +97,6 @@ pytest -q
 ## What comes next
 
 - YAML and directory discovery
-- SARIF output for GitHub code scanning
 - Policy-as-code profiles for read-only, developer, and production environments
 - Diff mode to block newly introduced risk
 - Evidence-backed enterprise review templates
@@ -102,4 +113,3 @@ GitHub issue. Initial inquiries should contain public, high-level information on
 ## License
 
 Apache-2.0
-

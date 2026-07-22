@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 from .models import SEVERITY_ORDER
-from .report import render_html, render_json, render_text
+from .report import render_html, render_json, render_sarif, render_text
 from .scanner import ScanError, scan_file
 
 
@@ -17,7 +17,7 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(dest="command", required=True)
     scan = subparsers.add_parser("scan", help="Scan an MCP configuration file")
     scan.add_argument("path", help="Path to a JSON MCP configuration")
-    scan.add_argument("--format", choices=("text", "json", "html"), default="text")
+    scan.add_argument("--format", choices=("text", "json", "html", "sarif"), default="text")
     scan.add_argument("--output", "-o", help="Write the report to this file")
     scan.add_argument(
         "--fail-on",
@@ -42,7 +42,12 @@ def main(argv: list[str] | None = None) -> int:
         print(f"error: {exc}", file=sys.stderr)
         return 2
 
-    renderer = {"text": render_text, "json": render_json, "html": render_html}[args.format]
+    renderer = {
+        "text": render_text,
+        "json": render_json,
+        "html": render_html,
+        "sarif": render_sarif,
+    }[args.format]
     output = renderer(result)
     if args.output:
         Path(args.output).write_text(output, encoding="utf-8")
@@ -54,4 +59,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

@@ -50,6 +50,17 @@ mcp-risk-lens scan examples/insecure.mcp.json \
 mcp-risk-lens scan .vscode/mcp.json --format json --output report.json --fail-on high
 ```
 
+生成可供 GitHub Code Scanning 或其他兼容 CI 系统使用的 SARIF 2.1.0 报告：
+
+```bash
+mcp-risk-lens scan .vscode/mcp.json \
+  --format sarif \
+  --output mcp-risk-lens.sarif \
+  --fail-on never
+```
+
+完整上传流程见 [GitHub Actions 集成指南](docs/github-actions.md)。
+
 退出码：
 
 - `0`：扫描完成，未达到失败阈值
@@ -84,4 +95,3 @@ pytest -q
 ## 许可证
 
 Apache-2.0
-

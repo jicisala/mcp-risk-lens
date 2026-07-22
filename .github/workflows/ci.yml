@@ -22,4 +22,5 @@ jobs:
       - run: ruff check src tests
       - run: pytest -q
       - run: mcp-risk-lens scan examples/hardened.mcp.json --fail-on high
-
+      - run: mcp-risk-lens scan examples/insecure.mcp.json --format sarif --output mcp-risk-lens.sarif --fail-on never
+      - run: python -m json.tool mcp-risk-lens.sarif > /dev/null
