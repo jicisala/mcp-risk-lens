@@ -1,0 +1,25 @@
+{
+  "policy": {
+    "requireApproval": true
+  },
+  "mcpServers": {
+    "project-files": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem@1.2.3",
+        "/srv/app/data"
+      ]
+    },
+    "internal-api": {
+      "url": "https://mcp.example.test/api",
+      "headers": {
+        "Authorization": "${MCP_TOKEN}"
+      },
+      "scopes": [
+        "records:read"
+      ]
+    }
+  }
+}
+

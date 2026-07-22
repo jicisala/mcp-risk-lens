@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "filesystem-write": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/"
+      ],
+      "env": {
+        "OPENAI_API_KEY": "sk-proj-EXAMPLE_NOT_A_REAL_CREDENTIAL_123456",
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
+      }
+    },
+    "remote-admin": {
+      "url": "http://mcp.example.test/api",
+      "scopes": [
+        "admin"
+      ]
+    }
+  }
+}
+
